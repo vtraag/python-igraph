@@ -195,7 +195,11 @@ import sys
 import tarfile
 import tempfile
 
-from select import select
+if os.name == 'nt':
+  import msvcrt
+  import time
+else:
+  from select import select
 
 try:
     from urllib import urlretrieve
@@ -341,10 +345,18 @@ def preprocess_fallback_config():
     if os.name == 'nt' and distutils.ccompiler.get_default_compiler() == 'msvc':
         # if this setup is run in the source checkout *and* the igraph msvc was build,
         # this code adds the right library and include dir
-        all_msvc_dirs = glob.glob(os.path.join('..', '..', 'igraph-*-msvc'))
+        version = '';
+        if sys.version_info >= (2, 7) and sys.version_info < (3, 0):
+          version = '27';
+        elif sys.version_info >= (3, 4) and sys.version_info < (3, 5):
+          version ='34';
+        elif sys.version_info >= (3, 5):
+          version ='35';
+        print('Checking ' + os.path.join('..', 'igraph', 'igraph-*-msvc'.format(version)));
+        all_msvc_dirs = glob.glob(os.path.join('..', 'igraph', 'igraph-*-msvc'.format(version)))
         if len(all_msvc_dirs) > 0:
             if len(all_msvc_dirs) > 1:
-                print("More than one MSVC build directory (..\\..\\igraph-*-msvc) found!")
+                print("More than one MSVC build directory (igraph-*-msvc) found!".format(version))
                 print("It could happen that setup.py uses the wrong one! Please remove all but the right one!\n\n")
 
             msvc_builddir = all_msvc_dirs[-1]
@@ -353,8 +365,15 @@ def preprocess_fallback_config():
                 print("Please build the MSVC build first!\n")
             else:
                 print("Using MSVC build dir as a fallback: %s\n\n" % msvc_builddir)
+
+                is_64bits = sys.maxsize > 2**32
                 LIBIGRAPH_FALLBACK_INCLUDE_DIRS = [os.path.join(msvc_builddir, "include")]
-                LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release")]
+                if is_64bits:
+                  print("Using x64")
+                  LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release")]
+                else:
+                  print("Using win32")
+                  LIBIGRAPH_FALLBACK_LIBRARY_DIRS = [os.path.join(msvc_builddir, "Release", "win32")]
 
 def version_variants(version):
     """Given an igraph version number, returns a list of possible version
@@ -790,8 +809,10 @@ class BuildConfiguration(object):
         print("on your machine, adjust the following two variables in setup.py")
         print("accordingly and try again:")
         print("")
-        print("- LIBIGRAPH_FALLBACK_INCLUDE_DIRS")
-        print("- LIBIGRAPH_FALLBACK_LIBRARY_DIRS")
+        print("- LIBIGRAPH_FALLBACK_INCLUDE_DIRS",
+            LIBIGRAPH_FALLBACK_INCLUDE_DIRS)
+        print("- LIBIGRAPH_FALLBACK_LIBRARY_DIRS",
+            LIBIGRAPH_FALLBACK_LIBRARY_DIRS)
         print("")
 
         seconds_remaining = 10 if self.wait else 0
@@ -805,10 +826,16 @@ class BuildConfiguration(object):
                     "immediately. " % (seconds_remaining, plural))
             sys.stdout.flush()
 
-            rlist, _, _ = select([sys.stdin], [], [], 1)
-            if rlist:
-                sys.stdin.readline()
-                break
+            if os.name == 'nt':
+              if msvcrt.kbhit():
+                  if msvcrt.getch() == b'\r': # not '\n'
+                      break
+              time.sleep(1)
+            else:
+              rlist, _, _ = select([sys.stdin], [], [], 1)
+              if rlist:
+                  sys.stdin.readline()
+                  break
 
             seconds_remaining -= 1
         sys.stdout.write("\r" + " "*65 + "\r")

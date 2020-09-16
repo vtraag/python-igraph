@@ -11508,13 +11508,14 @@ PyObject *igraphmodule_Graph_community_infomap(igraphmodule_GraphObject * self,
 PyObject *igraphmodule_Graph_community_label_propagation(
     igraphmodule_GraphObject *self, PyObject *args, PyObject *kwds)
 {
-  static char *kwlist[] = { "weights", "initial", "fixed", NULL };
+  static char *kwlist[] = { "weights", "initial", "fixed", "fast", NULL };
   PyObject *weights_o = Py_None, *initial_o = Py_None, *fixed_o = Py_None;
   PyObject *result;
   igraph_vector_t membership, *ws = 0, *initial = 0;
   igraph_vector_bool_t fixed;
+  igraph_bool_t fast;
 
-  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOO", kwlist, &weights_o, &initial_o, &fixed_o)) {
+  if (!PyArg_ParseTupleAndKeywords(args, kwds, "|OOOp", kwlist, &weights_o, &initial_o, &fixed_o, &fast)) {
     return NULL;
   }
 
@@ -11536,7 +11537,7 @@ PyObject *igraphmodule_Graph_community_label_propagation(
 
   igraph_vector_init(&membership, igraph_vcount(&self->g));
   if (igraph_community_label_propagation(&self->g, &membership,
-        ws, initial, (fixed_o != Py_None ? &fixed : 0), 0)) {
+        ws, initial, (fixed_o != Py_None ? &fixed : 0), 0, fast)) {
     if (fixed_o != Py_None) igraph_vector_bool_destroy(&fixed);
     if (ws) { igraph_vector_destroy(ws); free(ws); }
     if (initial) { igraph_vector_destroy(initial); free(initial); }
@@ -15730,7 +15731,7 @@ struct PyMethodDef igraphmodule_Graph_methods[] = {
   {"community_label_propagation",
    (PyCFunction) igraphmodule_Graph_community_label_propagation,
    METH_VARARGS | METH_KEYWORDS,
-   "community_label_propagation(weights=None, initial=None, fixed=None)\n\n"
+   "community_label_propagation(weights=None, initial=None, fixed=None, fast=False)\n\n"
    "Finds the community structure of the graph according to the label\n"
    "propagation method of Raghavan et al.\n\n"
    "Initially, each vertex is assigned a different label. After that,\n"
@@ -15754,6 +15755,7 @@ struct PyMethodDef igraphmodule_Graph_methods[] = {
    "  It only makes sense if initial labels are also given. Unlabeled\n"
    "  vertices cannot be fixed. Note that vertex attribute names are not\n"
    "  accepted here.\n"
+   "@param fast: boolean, choose a fast label propagation algorithm or not."
    "@return: the resulting membership vector\n"
    "\n"
    "@newfield ref: Reference\n"

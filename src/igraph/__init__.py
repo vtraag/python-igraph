@@ -1184,8 +1184,8 @@ class Graph(GraphBase):
 
 
     def community_label_propagation(self, weights = None, initial = None, \
-            fixed = None):
-        """community_label_propagation(weights=None, initial=None, fixed=None)
+            fixed = None, fast = False):
+        """community_label_propagation(weights=None, initial=None, fixed=None, fast=False)
 
         Finds the community structure of the graph according to the label
         propagation method of Raghavan et al.
@@ -1209,6 +1209,7 @@ class Graph(GraphBase):
           to vertices whose labeling should not change during the algorithm.
           It only makes sense if initial labels are also given. Unlabeled
           vertices cannot be fixed.
+        @param fast: boolean, choose a fast label propagation algorithm or not.
         @return: an appropriate L{VertexClustering} object.
 
         @newfield ref: Reference
@@ -1220,7 +1221,7 @@ class Graph(GraphBase):
         if isinstance(fixed, basestring):
             fixed = [bool(o) for o in g.vs[fixed]]
         cl = GraphBase.community_label_propagation(self, \
-                weights, initial, fixed)
+                weights, initial, fixed, fast)
         return VertexClustering(self, cl,
                 modularity_params=dict(weights=weights))
 

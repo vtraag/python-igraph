@@ -266,7 +266,7 @@ class IgraphCCoreCMakeBuilder(IgraphCCoreBuilder):
         print("Running build...")
         # We are _not_ using a parallel build; this is intentional, see igraph/igraph#1755
         retcode = subprocess.call(
-            [cmake, "--build", ".", "--config", "Release"]
+            [cmake, "--build", ".", "--parallel", "--config", "Release"]
         )
         if retcode:
             return False

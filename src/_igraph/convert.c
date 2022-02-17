@@ -765,6 +765,22 @@ int igraphmodule_PyObject_to_tree_mode_t(PyObject *o,
 }
 
 /**
+ * \ingroup python_interface_conversion
+ * \brief Converts a Python object to an igraph \c igraph_lpa_variant_t
+ */
+int igraphmodule_PyObject_to_lpa_variant_t(PyObject *o,
+  igraph_lpa_variant_t *result) {
+  static igraphmodule_enum_translation_table_entry_t neimode_tt[] = {
+        {"dominance", IGRAPH_LPA_DOMINANCE},
+        {"retention", IGRAPH_LPA_RETENTION},
+        {"fast", IGRAPH_LPA_FAST},
+        {0,0}
+    };
+
+  return igraphmodule_PyObject_to_enum(o, neimode_tt, (int*)result);
+}
+
+/**
  * \brief Extracts a pointer to the internal \c igraph_t from a graph object
  *
  * Raises suitable Python exceptions when needed.

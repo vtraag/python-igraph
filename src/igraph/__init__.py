@@ -1283,7 +1283,7 @@ class Graph(GraphBase):
         )
         return VertexClustering(self, membership, modularity=q)
 
-    def community_label_propagation(self, weights=None, initial=None, fixed=None):
+    def community_label_propagation(self, weights=None, initial=None, fixed=None, variant=None):
         """Finds the community structure of the graph according to the label
         propagation method of Raghavan et al.
 
@@ -1308,6 +1308,12 @@ class Graph(GraphBase):
           It only makes sense if initial labels are also given. Unlabeled
           vertices cannot be fixed. It may also be the name of a vertex
           attribute; each attribute value will be interpreted as a Boolean.
+        @param variant: the variant of LPA to use. This can be:
+          dominance: Sample from dominant labels, check for dominance 
+                     after each iteration.
+          retention: Keep current label if among dominant labels, only 
+                     check if labels changed. (Currently not implemented)
+          fast:      Sample from dominant labels, only check neighbors.
         @return: an appropriate L{VertexClustering} object.
 
         @newfield ref: Reference
@@ -1318,7 +1324,7 @@ class Graph(GraphBase):
         """
         if isinstance(fixed, str):
             fixed = [bool(o) for o in self.vs[fixed]]
-        cl = GraphBase.community_label_propagation(self, weights, initial, fixed)
+        cl = GraphBase.community_label_propagation(self, weights, initial, fixed, variant)
         return VertexClustering(self, cl, modularity_params=dict(weights=weights))
 
     def community_multilevel(self, weights=None, return_levels=False):

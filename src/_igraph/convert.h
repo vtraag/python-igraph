@@ -80,6 +80,7 @@ int igraphmodule_PyObject_to_to_directed_t(PyObject *o, igraph_to_directed_t *re
 int igraphmodule_PyObject_to_to_undirected_t(PyObject *o, igraph_to_undirected_t *result);
 int igraphmodule_PyObject_to_transitivity_mode_t(PyObject *o, igraph_transitivity_mode_t *result);
 int igraphmodule_PyObject_to_tree_mode_t(PyObject *o, igraph_tree_mode_t *result);
+int igraphmodule_PyObject_to_lpa_variant_t(PyObject *o, igraph_lpa_variant_t *result);
 int igraphmodule_PyObject_to_vconn_nei_t(PyObject *o, igraph_vconn_nei_t *result);
 
 /* Conversion from PyObject to igraph types */

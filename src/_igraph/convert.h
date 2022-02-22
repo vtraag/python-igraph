@@ -33,6 +33,7 @@
 #include <igraph_constants.h>
 #include <igraph_types.h>
 #include "graphobject.h"
+#include <igraph_community.h>
 
 typedef enum { IGRAPHMODULE_TYPE_INT=0, IGRAPHMODULE_TYPE_FLOAT }
 igraphmodule_conv_t;

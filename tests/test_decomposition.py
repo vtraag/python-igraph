@@ -280,7 +280,8 @@ class CommunityTests(unittest.TestCase):
         self.assertTrue(
             cl.membership == [0, 0, 1, 1]
             or cl.membership == [0, 1, 1, 1]
-            or cl.membership == [0, 0, 0, 1],
+            or cl.membership == [0, 0, 0, 1]
+            or cl.membership == [0, 2, 2, 1],
             msg="Unexpected membership: " + str(cl.membership)
         )
 
